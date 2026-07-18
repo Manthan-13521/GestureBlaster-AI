@@ -13,6 +13,8 @@ const NOISE_PATTERNS = [
   "inference_feedback_manager",
   "gl_context.cc",
   "vision_wasm",
+  "NORM_RECT",
+  "IMAGE_DIMENSIONS",
 ];
 
 function isMediapipeNoise(args: unknown[]): boolean {
@@ -23,29 +25,40 @@ function isMediapipeNoise(args: unknown[]): boolean {
   );
 }
 
+// Patch immediately at module evaluation time so we catch logs
+// that fire during WASM initialization before React renders
+const originalConsoleWarn = console.warn.bind(console);
+const originalConsoleInfo = console.info.bind(console);
+const originalConsoleLog = console.log.bind(console);
+const originalConsoleError = console.error.bind(console);
+
+console.warn = (...args: unknown[]) => {
+  if (isMediapipeNoise(args)) return;
+  originalConsoleWarn(...args);
+};
+console.info = (...args: unknown[]) => {
+  if (isMediapipeNoise(args)) return;
+  originalConsoleInfo(...args);
+};
+console.log = (...args: unknown[]) => {
+  if (isMediapipeNoise(args)) return;
+  originalConsoleLog(...args);
+};
+console.error = (...args: unknown[]) => {
+  if (isMediapipeNoise(args)) return;
+  originalConsoleError(...args);
+};
+
 export default function SuppressMediapipeLogs() {
+  // Component exists to ensure this module is imported and executed
+  // The actual patching happens above at module scope
   useEffect(() => {
-    const originalWarn = console.warn.bind(console);
-    const originalInfo = console.info.bind(console);
-    const originalLog = console.log.bind(console);
-
-    console.warn = (...args: unknown[]) => {
-      if (isMediapipeNoise(args)) return;
-      originalWarn(...args);
-    };
-    console.info = (...args: unknown[]) => {
-      if (isMediapipeNoise(args)) return;
-      originalInfo(...args);
-    };
-    console.log = (...args: unknown[]) => {
-      if (isMediapipeNoise(args)) return;
-      originalLog(...args);
-    };
-
     return () => {
-      console.warn = originalWarn;
-      console.info = originalInfo;
-      console.log = originalLog;
+      // Restore originals on unmount
+      console.warn = originalConsoleWarn;
+      console.info = originalConsoleInfo;
+      console.log = originalConsoleLog;
+      console.error = originalConsoleError;
     };
   }, []);
 

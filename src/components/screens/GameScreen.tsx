@@ -23,7 +23,10 @@ export default function GameScreen() {
   const [screenState, setScreenState] = useState<GameScreenState>("permission");
   const [inputMode, setInputMode] = useState<"hand" | "mouse">("mouse");
   const [hasVideo, setHasVideo] = useState(false);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [dimensions, setDimensions] = useState(() => ({
+    width: typeof window !== "undefined" ? window.innerWidth : 1280,
+    height: typeof window !== "undefined" ? window.innerHeight : 720,
+  }));
   const containerRef = useRef<HTMLDivElement>(null);
   const gameCanvasRef = useRef<HTMLCanvasElement>(null);
   const fxCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -101,16 +104,12 @@ export default function GameScreen() {
   }, [cameraStatus, cameraVideoRef, startTracking, stopTracking, getAudio]);
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const update = () => {
-      const rect = el.getBoundingClientRect();
-      setDimensions({ width: rect.width, height: rect.height });
-    };
+    const update = () =>
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    // Sync once immediately in case window size changed since first render
     update();
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => observer.disconnect();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
 
   useEffect(() => {
