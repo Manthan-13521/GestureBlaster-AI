@@ -139,6 +139,20 @@ export function useGameEngine({
       const w = widthRef.current;
       const h = heightRef.current;
 
+      const dpr = window.devicePixelRatio || 1;
+      const targetW = w * dpr;
+      const targetH = h * dpr;
+
+      for (const ref of [gameCanvasRef, fxCanvasRef]) {
+        const canvas = ref.current;
+        if (canvas) {
+          if (canvas.width !== targetW) canvas.width = targetW;
+          if (canvas.height !== targetH) canvas.height = targetH;
+          if (canvas.style.width !== `${w}px`) canvas.style.width = `${w}px`;
+          if (canvas.style.height !== `${h}px`) canvas.style.height = `${h}px`;
+        }
+      }
+
       engine.handleInput(currentInput, dt);
       engine.update(dt);
 

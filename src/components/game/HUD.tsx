@@ -66,29 +66,29 @@ export default function HUD({ engineStateRef }: HUDProps) {
   return (
     <>
       {/* ── TOP-LEFT: Score block ─────────────────────────────────────── */}
-      <div className="absolute top-0 left-0 z-20 p-3 sm:p-4 select-none pointer-events-none">
+      <div className="absolute top-12 sm:top-14 left-4 sm:left-6 z-20 select-none pointer-events-none">
         <div
-          className="px-4 py-3 rounded-sm border border-[#ffffff08] bg-[#08080e]/70 backdrop-blur-sm"
-          style={{ boxShadow: "0 0 20px rgba(0,0,0,0.4)" }}
+          className="px-5 py-4 rounded-xl border border-[#ffffff10] bg-[#08080e]/60 backdrop-blur-md"
+          style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}
         >
           {/* Label */}
-          <div className="font-mono text-[9px] tracking-[0.25em] uppercase text-[#48485a] mb-1">
+          <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#6c6c80] mb-1.5">
             Score
           </div>
           {/* Score number */}
           <div
-            className={`font-mono text-2xl sm:text-3xl font-bold tabular-nums tracking-widest transition-all duration-150 ${
+            className={`font-mono text-3xl sm:text-4xl font-bold tabular-nums tracking-widest transition-all duration-150 ${
               scorePulse ? "text-[#00f5d4] scale-105" : "text-[#e8e8f0]"
             }`}
             style={{
               fontFamily: "var(--font-display)",
-              textShadow: scorePulse ? "0 0 20px rgba(0,245,212,0.8)" : undefined,
+              textShadow: scorePulse ? "0 0 20px rgba(0,245,212,0.8)" : "0 2px 10px rgba(0,0,0,0.5)",
             }}
           >
             {formatScore(state.score)}
           </div>
           {/* Sub-stats */}
-          <div className="flex items-center gap-3 mt-2">
+          <div className="flex items-center gap-3 mt-3">
             <StatChip label={`${state.kills} kills`} />
             <StatChip label={`${Math.floor(state.sessionTime)}s`} color="#6c6c80" />
           </div>
@@ -96,52 +96,52 @@ export default function HUD({ engineStateRef }: HUDProps) {
       </div>
 
       {/* ── TOP-RIGHT: Wave + Weapon ───────────────────────────────────── */}
-      <div className="absolute top-0 right-0 z-20 p-3 sm:p-4 select-none pointer-events-none">
+      <div className="absolute top-12 sm:top-14 right-4 sm:right-6 z-20 select-none pointer-events-none">
         <div
-          className="flex flex-col items-end gap-1 px-4 py-3 rounded-sm border border-[#ffffff08] bg-[#08080e]/70 backdrop-blur-sm"
-          style={{ boxShadow: "0 0 20px rgba(0,0,0,0.4)" }}
+          className="flex flex-col items-end gap-1.5 px-5 py-4 rounded-xl border border-[#ffffff10] bg-[#08080e]/60 backdrop-blur-md"
+          style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}
         >
           {/* Wave badge */}
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-[#48485a]">Wave</span>
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#6c6c80]">Wave</span>
             <span
-              className="font-mono text-xl font-bold text-[#6c5ce7] tabular-nums"
-              style={{ fontFamily: "var(--font-display)", textShadow: "0 0 12px rgba(108,92,231,0.6)" }}
+              className="font-mono text-2xl font-bold text-[#6c5ce7] tabular-nums leading-none"
+              style={{ fontFamily: "var(--font-display)", textShadow: "0 0 16px rgba(108,92,231,0.6)" }}
             >
               {state.wave}
             </span>
           </div>
 
           {/* Divider */}
-          <div className="w-full h-px bg-[#ffffff08] my-1" />
+          <div className="w-full h-px bg-gradient-to-l from-[#ffffff10] to-transparent my-1.5" />
 
           {/* Weapon */}
           <div
-            className={`font-mono text-[10px] tracking-[0.15em] uppercase transition-all duration-200 ${
-              levelBounce ? "text-[#00f5d4] scale-110" : "text-[#00f5d4]/70"
+            className={`font-mono text-[11px] font-bold tracking-[0.2em] uppercase transition-all duration-200 ${
+              levelBounce ? "text-[#00f5d4] scale-110" : "text-[#00f5d4]/80"
             }`}
             style={{ textShadow: levelBounce ? "0 0 12px rgba(0,245,212,0.8)" : undefined }}
           >
             {weaponName}
           </div>
-          <div className="font-mono text-[9px] tracking-[0.2em] text-[#48485a]">
+          <div className="font-mono text-[10px] tracking-[0.2em] text-[#48485a]">
             Lv.{state.weaponLevel} · {state.monsterCount} enemies
           </div>
         </div>
       </div>
 
       {/* ── BOTTOM-CENTER: HP bar ─────────────────────────────────────── */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20 w-72 sm:w-80 select-none pointer-events-none">
+      <div className="fixed bottom-8 sm:bottom-10 left-1/2 -translate-x-1/2 z-20 w-80 sm:w-96 select-none pointer-events-none">
         <div
-          className={`px-4 py-3 rounded-sm border backdrop-blur-sm ${
+          className={`px-5 py-4 rounded-2xl border backdrop-blur-md ${
             hpLow
-              ? "border-[#ff4060]/30 bg-[#08080e]/80"
-              : "border-[#ffffff08] bg-[#08080e]/70"
+              ? "border-[#ff4060]/40 bg-[#ff4060]/5"
+              : "border-[#ffffff10] bg-[#08080e]/60"
           }`}
           style={{
             boxShadow: hpLow
-              ? "0 0 20px rgba(255,64,96,0.15), 0 0 0 1px rgba(255,64,96,0.1)"
-              : "0 0 20px rgba(0,0,0,0.4)",
+              ? "0 8px 32px rgba(255,64,96,0.15), 0 0 0 1px rgba(255,64,96,0.1)"
+              : "0 8px 32px rgba(0,0,0,0.4)",
           }}
         >
           <div className="flex items-center justify-between mb-2">

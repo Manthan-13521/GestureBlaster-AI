@@ -266,6 +266,19 @@ export default function GameScreen() {
               >
                 {muted ? "🔇" : "🔊"}
               </button>
+              <button
+                onClick={() => {
+                  if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                  } else {
+                    document.exitFullscreen().catch(() => {});
+                  }
+                }}
+                className="font-mono text-[9px] tracking-[0.25em] uppercase text-[#48485a] hover:text-[#e8e8f0] transition-colors duration-200 cursor-pointer px-3 py-2 rounded-sm hover:bg-white/5 hidden sm:block"
+                aria-label="Toggle Fullscreen"
+              >
+                ⛶
+              </button>
             </div>
 
             {/* Center wordmark */}
