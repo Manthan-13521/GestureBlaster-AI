@@ -7,6 +7,7 @@ import GameCanvas from "@/components/game/GameCanvas";
 import HUD from "@/components/game/HUD";
 import GameOverOverlay from "@/components/game/GameOverOverlay";
 import WaveAnnouncement from "@/components/game/WaveAnnouncement";
+import TutorialPrompt from "@/components/game/TutorialPrompt";
 import CalibrationScreen from "@/components/calibration/CalibrationScreen";
 import { useCamera } from "@/hooks/useCamera";
 import { useHandTracking } from "@/hooks/useHandTracking";
@@ -14,6 +15,8 @@ import { useCalibration } from "@/hooks/useCalibration";
 import { useGameInput } from "@/hooks/useGameInput";
 import { useGameEngine } from "@/hooks/useGameEngine";
 import { useAudio } from "@/hooks/useAudio";
+import { useTutorial } from "@/hooks/useTutorial";
+import { useGameSettings } from "@/hooks/useGameSettings";
 import { CoordinateMapper } from "@/input/coordinate-mapper";
 
 export default function GameScreen() {
@@ -26,6 +29,9 @@ export default function GameScreen() {
   const fxCanvasRef = useRef<HTMLCanvasElement>(null);
   const coordMapperRef = useRef<CoordinateMapper | null>(null);
   const audioInitializedRef = useRef(false);
+
+  const { settings } = useGameSettings();
+  const { reducedMotion, highContrastUi } = settings.accessibility;
 
   const { status: cameraStatus, videoRef: cameraVideoRef, error: cameraError, requestAccess, stop: stopCamera } = useCamera();
   const { handData, start: startTracking, stop: stopTracking } = useHandTracking();
@@ -45,6 +51,8 @@ export default function GameScreen() {
   const { getManager: getAudio, cleanup: cleanupAudio, muted, toggleMute } = useAudio();
   const audioManager = getAudio();
 
+  const tutorial = useTutorial(settings.game.tutorialEnabled);
+
   const { stateRef, restart } = useGameEngine({
     gameCanvasRef,
     fxCanvasRef,
@@ -53,6 +61,7 @@ export default function GameScreen() {
     running: screenState === "playing",
     width: dimensions.width || (typeof window !== "undefined" ? window.innerWidth : 0),
     height: dimensions.height || (typeof window !== "undefined" ? window.innerHeight : 0),
+    onEngineEvent: tutorial.handleEngineEvent,
   });
 
   useEffect(() => {
@@ -112,6 +121,19 @@ export default function GameScreen() {
       detachInput();
     }
   }, [screenState, attachInput, detachInput]);
+
+  // Signal pinch to tutorial when input becomes active
+  useEffect(() => {
+    if (screenState === "playing" && input.isActive) {
+      tutorial.handlePinch();
+    }
+  }, [input.isActive, screenState, tutorial]);
+
+  // Reset tutorial on restart
+  const handleRestart = useCallback(() => {
+    tutorial.reset();
+    restart();
+  }, [restart, tutorial]);
 
   const handleGrantCamera = useCallback(async () => {
     setScreenState("requesting");
@@ -243,7 +265,15 @@ export default function GameScreen() {
 
         <HUD engineStateRef={stateRef} />
 
-        <GameOverOverlay engineStateRef={stateRef} onRestart={restart} />
+        {tutorial.enabled && (
+          <TutorialPrompt
+            tutorialState={tutorial.tutorialState}
+            reducedMotion={reducedMotion}
+            highContrastUi={highContrastUi}
+          />
+        )}
+
+        <GameOverOverlay engineStateRef={stateRef} onRestart={handleRestart} />
         <WaveAnnouncement engineStateRef={stateRef} playing={screenState === "playing"} />
 
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-10">

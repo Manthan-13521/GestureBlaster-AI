@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useCallback, useState } from "react";
 import { GameEngine } from "@/engine/game-engine";
+import type { EngineEvent } from "@/engine/game-engine";
 import type { AimInput } from "@/types/input";
 import type { AudioManager } from "@/audio/audio-manager";
 import type { EngineStateSnapshot } from "@/engine/types";
@@ -14,6 +15,8 @@ interface UseGameEngineOptions {
   running: boolean;
   width: number;
   height: number;
+  /** Optional second subscriber — receives every engine event after audio is handled */
+  onEngineEvent?: (event: EngineEvent) => void;
 }
 
 const defaultState: EngineStateSnapshot = {
@@ -37,7 +40,11 @@ export function useGameEngine({
   running,
   width,
   height,
+  onEngineEvent,
 }: UseGameEngineOptions) {
+  // Keep the callback in a ref so changes never force the engine loop to restart
+  const onEngineEventRef = useRef(onEngineEvent);
+  useEffect(() => { onEngineEventRef.current = onEngineEvent; }, [onEngineEvent]);
   const engineRef = useRef<GameEngine | null>(null);
   const rafRef = useRef<number | null>(null);
   const runningRef = useRef(false);
@@ -94,6 +101,7 @@ export function useGameEngine({
     }
 
     engine.onEvent = (event) => {
+      // Audio handling
       switch (event.type) {
         case "fire":
           audioManager.playLaunchSweep();
@@ -115,6 +123,8 @@ export function useGameEngine({
           audioManager.playWaveTransition();
           break;
       }
+      // Secondary subscriber (tutorial, analytics, etc.)
+      onEngineEventRef.current?.(event);
     };
 
     let lastTime = performance.now();
