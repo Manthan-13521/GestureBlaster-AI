@@ -90,14 +90,13 @@ export function useGameEngine({
     engineRef.current = engine;
     stateRef.current = defaultState;
 
-    const dpr = window.devicePixelRatio || 1;
     for (const ref of [gameCanvasRef, fxCanvasRef]) {
       const canvas = ref.current;
       if (!canvas) continue;
-      canvas.width = widthRef.current * dpr;
-      canvas.height = heightRef.current * dpr;
-      canvas.style.width = `${widthRef.current}px`;
-      canvas.style.height = `${heightRef.current}px`;
+      canvas.width = widthRef.current;
+      canvas.height = heightRef.current;
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
     }
 
     engine.onEvent = (event) => {
@@ -139,17 +138,12 @@ export function useGameEngine({
       const w = widthRef.current;
       const h = heightRef.current;
 
-      const dpr = window.devicePixelRatio || 1;
-      const targetW = w * dpr;
-      const targetH = h * dpr;
-
+      // Update canvas size if window was resized
       for (const ref of [gameCanvasRef, fxCanvasRef]) {
         const canvas = ref.current;
-        if (canvas) {
-          if (canvas.width !== targetW) canvas.width = targetW;
-          if (canvas.height !== targetH) canvas.height = targetH;
-          if (canvas.style.width !== `${w}px`) canvas.style.width = `${w}px`;
-          if (canvas.style.height !== `${h}px`) canvas.style.height = `${h}px`;
+        if (canvas && (canvas.width !== w || canvas.height !== h)) {
+          canvas.width = w;
+          canvas.height = h;
         }
       }
 
