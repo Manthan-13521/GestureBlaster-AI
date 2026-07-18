@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Orbitron } from "next/font/google";
+import SuppressMediapipeLogs from "@/components/ui/SuppressMediapipeLogs";
 import "./globals.css";
 
 const inter = Inter({
@@ -57,7 +58,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <SuppressMediapipeLogs />
+        {children}
+      </body>
     </html>
   );
 }
