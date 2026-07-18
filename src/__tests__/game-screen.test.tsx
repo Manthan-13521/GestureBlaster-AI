@@ -57,7 +57,7 @@ describe("GameScreen", () => {
   it("shows playing screen when Use Mouse Instead is clicked", async () => {
     render(<GameScreen />);
     screen.getByText("Use Mouse Instead").click();
-    expect(await screen.findByText(/Exit/)).toBeDefined();
-    expect(screen.getByText("Mouse Mode")).toBeDefined();
+    expect(await screen.findByText(/EXIT/i)).toBeDefined();
+    expect(screen.getByText("Mouse")).toBeDefined();
   });
 });

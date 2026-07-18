@@ -231,7 +231,7 @@ export default function GameScreen() {
         {inputMode === "hand" && hasVideo && (
           <video
             ref={cameraVideoRef}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover opacity-30"
             playsInline
             muted
             aria-hidden="true"
@@ -239,27 +239,53 @@ export default function GameScreen() {
         )}
         <GameCanvas gameCanvasRef={gameCanvasRef} fxCanvasRef={fxCanvasRef} />
 
-        <div className="absolute top-0 inset-x-0 z-10">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-3">
+        {/* Subtle vignette */}
+        <div
+          className="absolute inset-0 pointer-events-none z-[1]"
+          style={{ background: "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%)" }}
+        />
+
+        {/* Top chrome bar */}
+        <div
+          className="absolute top-0 inset-x-0 z-20 pointer-events-none"
+          style={{ background: "linear-gradient(to bottom, rgba(8,8,14,0.7) 0%, transparent 100%)" }}
+        >
+          <div className="flex items-center justify-between px-4 py-3 pointer-events-auto">
+            <div className="flex items-center gap-1">
               <button
                 onClick={() => (window.location.href = "/")}
-                className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#48485a] hover:text-[#6c6c80] transition-colors duration-200 cursor-pointer px-3 py-2"
+                className="font-mono text-[9px] tracking-[0.25em] uppercase text-[#48485a] hover:text-[#e8e8f0] transition-colors duration-200 cursor-pointer px-3 py-2 rounded-sm hover:bg-white/5"
                 aria-label="Exit to main menu"
               >
-                &larr; Exit
+                ← EXIT
               </button>
               <button
                 onClick={toggleMute}
-                className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#48485a] hover:text-[#6c6c80] transition-colors duration-200 cursor-pointer px-3 py-2"
+                className="font-mono text-[9px] tracking-[0.25em] uppercase text-[#48485a] hover:text-[#e8e8f0] transition-colors duration-200 cursor-pointer px-3 py-2 rounded-sm hover:bg-white/5"
                 aria-label={muted ? "Unmute" : "Mute"}
               >
-                {muted ? "[MUTED]" : "[SOUND]" }
+                {muted ? "🔇" : "🔊"}
               </button>
             </div>
-            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#48485a]">
-              {inputMode === "hand" ? "Hand Mode" : "Mouse Mode"}
+
+            {/* Center wordmark */}
+            <span
+              className="absolute left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-[0.35em] uppercase text-[#ffffff14] pointer-events-none"
+              aria-hidden="true"
+            >
+              HANDSHOOTER
             </span>
+
+            {/* Input mode indicator */}
+            <div className="flex items-center gap-2">
+              <span
+                className="w-1.5 h-1.5 rounded-full animate-pulse"
+                style={{ backgroundColor: "#00f5d4", boxShadow: "0 0 6px #00f5d4" }}
+              />
+              <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-[#48485a]">
+                {inputMode === "hand" ? "Hand" : "Mouse"}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -275,16 +301,6 @@ export default function GameScreen() {
 
         <GameOverOverlay engineStateRef={stateRef} onRestart={handleRestart} />
         <WaveAnnouncement engineStateRef={stateRef} playing={screenState === "playing"} />
-
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-10">
-          <div className="px-5 py-2 rounded-sm border border-[#6c5ce7]/10 bg-[#0f0f1a]/60">
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#48485a]">
-              {inputMode === "hand"
-                ? "Point index finger to aim · Auto-fire active"
-                : "Move mouse to aim · Auto-fire active"}
-            </p>
-          </div>
-        </div>
       </div>
     );
   }
